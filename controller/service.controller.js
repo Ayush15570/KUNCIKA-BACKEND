@@ -66,7 +66,7 @@ export const createServiceRequest = asyncHandler(async(req,res) => {
         throw new ApiError(400,"req fields missing")
     }
     const otp = generateOTP()
-    const service = await Service.findById(serviceId);
+    const service = await Services.findById(serviceId);
 const serviceName = service?.name;
 
     
