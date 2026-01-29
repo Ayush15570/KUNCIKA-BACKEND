@@ -59,14 +59,17 @@ const generateOTP = () =>
     Math.floor(100000 + Math.random() * 900000).toString();
 
 export const createServiceRequest = asyncHandler(async(req,res) => {
-    const {name,serviceId,serviceName,phoneNumber,city} = req.body;
+    const {name,serviceId,phoneNumber,city} = req.body;
    //const city = req.cookies.location
    
-    if( !city || !name  || !serviceId || !serviceName || !phoneNumber){
+    if( !city || !name  || !serviceId  || !phoneNumber){
         throw new ApiError(400,"req fields missing")
     }
     const otp = generateOTP()
+    const service = await Service.findById(serviceId);
+const serviceName = service?.name;
 
+    
     const request = await ServiceRequest.create({
         name,
         serviceId,
