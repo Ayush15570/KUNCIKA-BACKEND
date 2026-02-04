@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { ERP } from "../models/erp.model.js";
 import { Admin } from "../models/admin.model.js";
 import { ServiceRequest } from "../models/serviceRequests.model.js";
-
+import { Job } from "../models/job.model.js";
 export const erpLogin = async(req,res) => {
     const {email,password} = req.body
 
@@ -25,9 +25,9 @@ export const erpLogin = async(req,res) => {
     )
 
     res.cookie("erpToken",token, {
-        httpOnly:true,
-        sameSite: "none",
-        secure: true
+        httpOnly: true,
+        sameSite:"strict",
+        secure: false
     })
 
     res.json({success: true})
@@ -35,9 +35,9 @@ export const erpLogin = async(req,res) => {
 };
 
 export const createAdmin = async(req,res) => {
-    const {email,password,city} = req.body
+    const {fullName,email,password,city} = req.body
 
-    if(!email || !password || !city) {
+    if(!fullName || !email || !password || !city) {
         return res.status(400).json({message:"Missing fields"})
     }
 
@@ -49,6 +49,7 @@ export const createAdmin = async(req,res) => {
     const hashedPassword = await bcrypt.hash(password,10)
 
     const admin = await Admin.create({
+        fullName,
         email,
         password: hashedPassword,
         city
@@ -58,6 +59,7 @@ export const createAdmin = async(req,res) => {
         success: true,
         message: "Admin created successfully",
         admin: {
+          fullName:admin.fullName,
           id: admin._id,
           email: admin.email,
           city: admin.city
@@ -65,6 +67,46 @@ export const createAdmin = async(req,res) => {
     })
 }
 
+export const viewAdmins = async(req,res) => {
+    const {email,city} = req.query
+    const filter = {isActive:true}
+    if(email){
+        filter.email = { $regex: email, $options: "i" };
+    }
+    if(city){
+        filter.city = { $regex: city, $options: "i" };
+    }
+    const  admins = await Admin.find(filter).select("-password").sort({createdAt:-1})
+    
+    if(!admins){
+        return res.status(400).json({message: "no admins created"})
+    }
+    res.status(200).json({
+        success:true,
+        count: admins.length,
+        admins
+
+    })
+}
+
+export const deleteAdmin = async(req,res) => {
+    const {adminId} = req.params
+
+    const admin = await Admin.findById(adminId)
+
+    if(!admin){
+        return res.status(404).json({message: "admin not found"})
+    }
+    
+   admin.isActive = false
+   await admin.save()
+
+    res.status(200).json({
+        success:true,
+        message:"admin deactivated"
+    })
+ 
+}
 
 
 export const checkErpSession = (req,res) => {
@@ -73,35 +115,61 @@ export const checkErpSession = (req,res) => {
 
 export const erpLogout = (req,res) => {
     res.clearCookie("erpToken", {
-  httpOnly: true,
-  sameSite: "none",
-  secure: true
+ httpOnly: true,
+        sameSite:"strict",
+        secure: false
 });
 
     res.json({success:true})
 }
 
-export const getAllRequestsForERP = async(req,res) => {
-    const {city,status} = req.query
+export const getAllRequestsForERP = async (req, res) => {
+  const { city, status } = req.query;
 
-    const filter = {}
+  const filter = {};
+  if (city) filter.city = city;
+  if (status) filter.status = status;
 
-    if(city){
-        filter.city = city
-    }
+  // 1️⃣ Get all service requests
+  const requests = await ServiceRequest.find(filter)
+    .sort({ createdAt: -1 })
+    .lean(); // IMPORTANT
 
-    if(status){
-        filter.status = status;
-    }
+  // 2️⃣ Get jobs linked to these requests
+  const jobs = await Job.find({
+    serviceRequest: { $in: requests.map(r => r._id) }
+  }).lean();
 
-    const requests = await ServiceRequest.find(filter)
-                    .sort({createdAt : -1 })
+  // 3️⃣ Create lookup map
+  const jobMap = {};
+  jobs.forEach(job => {
+    jobMap[job.serviceRequest.toString()] = job;
+  });
 
-    res.status(200).json({
-        success:true,
-        count:requests.length,
-        data: requests
-    })
-}
+  // 4️⃣ Attach job to request
+  const finalData = requests.map(req => ({
+    ...req,
+    job: jobMap[req._id.toString()] || null
+  }));
+
+  res.status(200).json({
+    success: true,
+    count: finalData.length,
+    data: finalData
+  });
+};
+
+export const getJobByJobId = async (req, res) => {
+  const { jobId } = req.params;
+
+  const job = await Job.findOne({ jobId })
+    .populate("serviceRequest");
+
+  if (!job) {
+    return res.status(404).json({ message: "Job not found" });
+  }
+
+  res.status(200).json({ success: true, job });
+};
 
 

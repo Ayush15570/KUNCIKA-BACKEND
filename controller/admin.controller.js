@@ -4,13 +4,17 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Admin } from "../models/admin.model.js";
 import bcrypt from 'bcryptjs'; 
 import  jwt  from "jsonwebtoken";
+import { Job } from "../models/job.model.js";
 export const adminLogin = asyncHandler(async(req,res) => {
+  
     const {email,password} = req.body
 
     const admin = await Admin.findOne({email})
+    
     if(!admin) return res.status(401).json({message:"Invalid credentials"})
     
     const isMatch = await bcrypt.compare(password, admin.password);
+   
     if(!isMatch) return res.status(401).json({message:"Invalid credentials"})
 
     const token = jwt.sign(
@@ -21,8 +25,9 @@ export const adminLogin = asyncHandler(async(req,res) => {
 
     res.cookie("adminToken",token,{
         httpOnly: true,
-        sameSite:"none",
-        secure: true
+        sameSite:"lax",
+        secure: false,
+        path: "/"
     })
 
     res.json({success:true})
@@ -31,7 +36,10 @@ export const adminLogin = asyncHandler(async(req,res) => {
 
 export const getAllServiceRequests = asyncHandler(async(req,res) => {
     const city = req.admin.city
+  
+
     const requests = await ServiceRequest.find({city})
+    
     .sort({createdAt:-1})
     
     .sort({ createdAt: -1 })
@@ -46,12 +54,13 @@ export const getAllServiceRequests = asyncHandler(async(req,res) => {
 })
 
 export const checkAdminSession = (req,res) => {
+   
     const token = req.cookies.adminToken
 
     if(!token) {
         return res.status(401).json({message : "Not authenticated"})
     }
-
+     
     try {
         const decoded = jwt.verify(
             token,
@@ -73,9 +82,9 @@ export const checkAdminSession = (req,res) => {
 
 export const adminLogout = (req,res) => {
     res.clearCookie("adminToken" , {
-        httpOnly:true,
-        sameSite: 'none',
-        secure: true
+        httpOnly: true,
+        sameSite:"lax",
+        secure: false
     })
 
     res.json({success : true})
@@ -112,3 +121,103 @@ export const verifyServiceRequestOTP = asyncHandler(async(req,res) => {
         message:"Request marked as completed"
     })
 })
+const generateJobId = () => {
+  return  Math.floor(100000 + Math.random() * 900000);
+};
+const generateJobotp = () => {
+  return  Math.floor(100000 + Math.random() * 900000);
+};
+export const assignJob = async(req,res) => {
+    const{requestId,engineerName,engineerPhone} = req.body
+    if (!requestId || !engineerName || !engineerPhone) {
+       
+    return res.status(400).json({ message: "Missing fields" });
+    }
+   
+    const request = await ServiceRequest.findById(requestId)
+
+    if(!request || !request.otpVerified){
+        return res.status(400).json({messsage:"Request not verified"})
+    }
+
+    const existingJob = await Job.findOne({serviceRequest: requestId})
+
+    if(existingJob){
+        console.log("Job ALREADYYY")
+        return res.status(400).json({message:"Job already assigned"})
+    }
+    
+    const job = await Job.create({
+        jobId:generateJobId(),
+        closingOTP:generateJobotp(),
+        serviceRequest: request._id,
+        clientName:request.name,
+        clientPhone: request.phoneNumber,
+        city:request.city,
+
+        serviceName: request.serviceName,
+
+        engineerName,
+        engineerPhone
+    });
+    request.jobAssigned = true
+    await request.save()
+    return res.status(200).json({
+        success:true,
+        message:"Job assigned",
+        job
+    })
+
+}
+
+export const verifyOTP = async(req,res) => {
+    const {jobId,otp} = req.body
+    if(!otp || !jobId){
+        return res.status(400).json({message:"Missing field"})
+    }
+    const job = await Job.findOne({jobId})
+    if(!job){
+        return res.status(400).json({message:"Job not found"})
+    }
+    if(job.closingOTPVerified){
+        return res.status(400).json({message:"Job already closed"})
+    }
+    if(otp !== job.closingOTP ){
+        return res.status(400).json({message:"Wrong OTP"})
+    }
+
+    job.closingOTPVerified = true
+    job.status = "closed"
+    await job.save()
+     
+     return res.status(200).json({
+        success:true,
+        message:"Job completed"
+    })
+
+}
+
+export const getJobByServiceRequest = async(req,res)=>{
+    const {serviceRequestId} = req.params
+
+    const job = await Job.findOne({serviceRequest: serviceRequestId})
+
+    if(!job){
+        return res.status(404).json({message:"Job not found"})
+    }
+
+    res.status(200).json({success:true,job})
+}
+
+export const getJobByJobId = async (req, res) => {
+  const { jobId } = req.params;
+
+  const job = await Job.findOne({ jobId })
+    .populate("serviceRequest");
+
+  if (!job) {
+    return res.status(404).json({ message: "Job not found" });
+  }
+
+  res.status(200).json({ success: true, job });
+};

@@ -35,7 +35,11 @@ const serviceRequestSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "contacted"],
       default: "pending",
-    }, 
+    },
+    jobAssigned:{
+      type: Boolean,
+      default:false
+    }
   },
   { timestamps: true }
 );

@@ -54,11 +54,14 @@ export const getServiceByLocation = async(req,res) => {
 }
 }
 
+import { sendOTP } from "../utils/sendSMS.js";
 
 const generateOTP = () => 
     Math.floor(100000 + Math.random() * 900000).toString();
 
 export const createServiceRequest = asyncHandler(async(req,res) => {
+    console.log("REQ BODY:", req.body);
+
     const {name,serviceId,phoneNumber,city} = req.body;
    //const city = req.cookies.location
    
@@ -79,7 +82,9 @@ const serviceName = service?.name;
         verificationOTP:otp,
     })
 
-    console.log("OTP SENT TO USER:", otp)
+    console.log("OTP FOR VERIFICATION", otp)
+
+    
     return res
     .status(201)
     .json(new ApiResponse(201,request,"Request submitted"))

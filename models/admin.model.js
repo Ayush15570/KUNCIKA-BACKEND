@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const adminSchema = new mongoose.Schema({
+    fullName:{
+        type:String,
+        required:true,
+        
+    },
     email:{
         type:String,
         required:true,
@@ -18,6 +23,11 @@ const adminSchema = new mongoose.Schema({
     city: {
         type:String,
         required:true
+    },
+
+    isActive:{
+        type:Boolean,
+        default:true
     }
 },{timestamps:true})
 

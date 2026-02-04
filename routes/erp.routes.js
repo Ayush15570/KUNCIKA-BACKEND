@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { erpLogin,checkErpSession,erpLogout,createAdmin,getAllRequestsForERP } from "../controller/erp.controller.js";
+import { erpLogin,checkErpSession,getJobByJobId,erpLogout,createAdmin,getAllRequestsForERP,viewAdmins,deleteAdmin } from "../controller/erp.controller.js";
 import { verifyERP } from "../middlewares/erp.middleware.js";
 
 
@@ -11,5 +11,7 @@ router.route("/check-session").get(verifyERP,checkErpSession)
 router.route("/logout").post(verifyERP,erpLogout)
 router.route("/create-admin").post(verifyERP,createAdmin)
 router.route("/requests").get(verifyERP,getAllRequestsForERP)
-
-export default router
+router.route("/admins").get(verifyERP,viewAdmins)
+router.route("/admins/:adminId").delete(verifyERP,deleteAdmin)
+router.route("/job/:jobId").get(verifyERP,getJobByJobId)
+export default router 

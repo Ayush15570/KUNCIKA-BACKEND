@@ -106,7 +106,86 @@ const services = [
     description: "Startup guidance, mentorship and strategy building.",
     availableLocations: ["Bhopal", "Delhi", "Pune"],
     isActive: true,
-  }
+  },
+  {
+  name: "Pest Control",
+  route: "pest-control",
+  description: "Pest control for homes, offices, termites, rodents and insects.",
+  availableLocations: ["Bhopal", "Indore", "Delhi"],
+  isActive: true,
+},
+{
+  name: "Law & Order Consultant",
+  route: "law-order",
+  description: "Legal compliance, dispute handling, police and law advisory services.",
+  availableLocations: ["Bhopal", "Delhi"],
+  isActive: true,
+},
+{
+  name: "Rail Yatra",
+  route: "rail-yatra",
+  description: "Railway ticket assistance, travel planning and rail journey support.",
+  availableLocations: ["All India"],
+  isActive: true,
+},
+{
+  name: "Air Yatra",
+  route: "air-yatra",
+  description: "Flight booking, travel assistance and air journey support.",
+  availableLocations: ["All India"],
+  isActive: true,
+},
+{
+  name: "Banking & Finance",
+  route: "banking-finance",
+  description: "Loans, insurance, account opening and financial consultancy.",
+  availableLocations: ["Bhopal", "Indore", "Delhi"],
+  isActive: true,
+},
+{
+  name: "Stock Market",
+  route: "stock-market",
+  description: "Stock market advisory, trading guidance and investment support.",
+  availableLocations: ["All India"],
+  isActive: true,
+},
+{
+  name: "Part Time Jobs",
+  route: "part-time-job",
+  description: "Part-time work opportunities, freelance and temporary jobs.",
+  availableLocations: ["Bhopal", "Indore", "Delhi", "Pune"],
+  isActive: true,
+},
+{
+  name: "Film & Documentary",
+  route: "film-documentary",
+  description: "Film making, documentary production and media projects.",
+  availableLocations: ["Mumbai", "Delhi", "Bhopal"],
+  isActive: true,
+},
+{
+  name: "Artificial Intelligence",
+  route: "ai",
+  description: "AI solutions, automation, ML models and AI consulting.",
+  availableLocations: ["All India"],
+  isActive: true,
+},
+{
+  name: "Editing",
+  route: "editing",
+  description: "Video editing, photo editing and post-production services.",
+  availableLocations: ["All India"],
+  isActive: true,
+},
+{
+  name: "Coding & Development",
+  route: "coding",
+  description: "Website, app development, software and coding services.",
+  availableLocations: ["All India"],
+  isActive: true,
+},
+
+  
 ];
 
 const seedServices = async() => {
