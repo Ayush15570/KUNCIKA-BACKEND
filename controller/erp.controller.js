@@ -25,9 +25,9 @@ export const erpLogin = async(req,res) => {
     )
 
     res.cookie("erpToken",token, {
-        httpOnly: true,
-        sameSite:"strict",
-        secure: false
+         httpOnly: true,
+        sameSite:"none",
+        secure: true,
     })
 
     res.json({success: true})
@@ -116,8 +116,8 @@ export const checkErpSession = (req,res) => {
 export const erpLogout = (req,res) => {
     res.clearCookie("erpToken", {
  httpOnly: true,
-        sameSite:"strict",
-        secure: false
+        sameSite:"none",
+        secure: true,
 });
 
     res.json({success:true})

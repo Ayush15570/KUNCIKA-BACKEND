@@ -25,9 +25,9 @@ export const adminLogin = asyncHandler(async(req,res) => {
 
     res.cookie("adminToken",token,{
         httpOnly: true,
-        sameSite:"lax",
-        secure: false,
-        path: "/"
+        sameSite:"none",
+        secure: true,
+        
     })
 
     res.json({success:true})
@@ -82,9 +82,12 @@ export const checkAdminSession = (req,res) => {
 
 export const adminLogout = (req,res) => {
     res.clearCookie("adminToken" , {
-        httpOnly: true,
-        sameSite:"lax",
-        secure: false
+        //httpOnly: true,
+        //sameSite:"lax",
+        //secure: false
+         httpOnly: true,
+        sameSite:"none",
+        secure: true,
     })
 
     res.json({success : true})
