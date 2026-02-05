@@ -7,7 +7,7 @@ const router = Router()
 
 router.route("/login").post(adminLogin)
 router.route("/service-requests").get(verifyAdmin,getAllServiceRequests)
-router.route("/check-session").get(checkAdminSession)
+router.route("/check-session").get(verifyAdmin,checkAdminSession)
 router.post("/logout", adminLogout);
 router.route("/verify-request-otp").post(verifyAdmin,verifyServiceRequestOTP)
 router.route("/assignJob").post(verifyAdmin,assignJob)
