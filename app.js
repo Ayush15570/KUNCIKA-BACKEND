@@ -10,6 +10,7 @@ app.use(cors({
       "http://localhost:5174",
       "https://frontend-user.vercel.app",
       "https://frontend-admin-s36m.vercel.app",
+      "https://frontend-erp-sage.vercel.app"
     ];
     if (!origin || allowed.includes(origin)) {
       callback(null, true);
