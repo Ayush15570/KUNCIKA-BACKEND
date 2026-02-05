@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Admin } from "../models/admin.model.js";
 import bcrypt from 'bcryptjs'; 
 import  jwt  from "jsonwebtoken";
+import { verifyOTP1 } from "../utils/verifyOTP1.js";
 import { Job } from "../models/job.model.js";
 export const adminLogin = asyncHandler(async(req,res) => {
   
@@ -26,7 +27,7 @@ export const adminLogin = asyncHandler(async(req,res) => {
     res.cookie("adminToken",token,{
         httpOnly: true,
         sameSite:"none",
-        secure: true,
+       secure: true,
         
     })
 
@@ -84,14 +85,15 @@ export const adminLogout = (req,res) => {
     res.clearCookie("adminToken" , {
         //httpOnly: true,
         //sameSite:"lax",
-        //secure: false
+       // secure: false
          httpOnly: true,
         sameSite:"none",
-        secure: true,
+       secure: true,
     })
 
     res.json({success : true})
 }
+
 
 export const verifyServiceRequestOTP = asyncHandler(async(req,res) => {
     const {requestId,otp} = req.body
@@ -109,9 +111,15 @@ export const verifyServiceRequestOTP = asyncHandler(async(req,res) => {
     if(request.otpVerified){
         return res.status(400).json({message:"Already verified"})
     }
-    if(request.verificationOTP !== otp){
-        return res.status(400).json({message: "Invalid OTP"})
-    }
+   // if(request.verificationOTP !== otp){
+     //   return res.status(400).json({message: "Invalid OTP"})
+    //}
+
+      const isValid = await verifyOTP1(request.verificationOTP, otp);
+      
+  if (!isValid) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
 
     request.otpVerified = true
     request.status = "contacted";

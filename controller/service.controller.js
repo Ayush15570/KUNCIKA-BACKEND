@@ -54,10 +54,10 @@ export const getServiceByLocation = async(req,res) => {
 }
 }
 
-import { sendOTP } from "../utils/sendSMS.js";
+import { sendOTP } from "../utils/sendOTP.js";
 
-const generateOTP = () => 
-    Math.floor(100000 + Math.random() * 900000).toString();
+//const generateOTP = () => 
+  //  //Math.floor(100000 + Math.random() * 900000).toString();
 
 export const createServiceRequest = asyncHandler(async(req,res) => {
     console.log("REQ BODY:", req.body);
@@ -68,10 +68,10 @@ export const createServiceRequest = asyncHandler(async(req,res) => {
     if( !city || !name  || !serviceId  || !phoneNumber){
         throw new ApiError(400,"req fields missing")
     }
-    const otp = generateOTP()
+    //const otp = generateOTP()
     const service = await Services.findById(serviceId);
 const serviceName = service?.name;
-
+ const sessionId = await sendOTP(phoneNumber);
     
     const request = await ServiceRequest.create({
         name,
@@ -79,10 +79,9 @@ const serviceName = service?.name;
         serviceName,
         phoneNumber,
         city,
-        verificationOTP:otp,
+        verificationOTP:sessionId,
     })
 
-    console.log("OTP FOR VERIFICATION", otp)
 
     
     return res
