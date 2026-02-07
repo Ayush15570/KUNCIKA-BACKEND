@@ -7,6 +7,66 @@ import  jwt  from "jsonwebtoken";
 import { verifyOTP1 } from "../utils/verifyOTP1.js";
 import { Job } from "../models/job.model.js";
 import { sendOTP } from "../utils/sendOTP.js";
+import ExcelJS from "exceljs";
+
+
+export const exportPendingJobsExcel = async (req, res) => {
+    const adminCity = req.admin.city;
+  const jobs = await Job.find({
+    status: { $ne: "closed" }, city: adminCity,
+  });
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Pending Jobs");
+
+  // Columns
+  worksheet.columns = [
+    { header: "Job ID", key: "jobId", width: 15 },
+    { header: "Client Name", key: "clientName", width: 20 },
+    { header: "Client Phone", key: "clientPhone", width: 18 },
+    { header: "City", key: "city", width: 15 },
+    { header: "Service", key: "serviceName", width: 25 },
+    { header: "Engineer", key: "engineerName", width: 20 },
+    { header: "Engineer Phone", key: "engineerPhone", width: 18 },
+    { header: "Job Status", key: "status", width: 15 },
+    {
+      header: "Reason for not completed (Admin to fill)",
+      key: "reason",
+      width: 40
+    }
+  ];
+
+  // Rows
+  jobs.forEach(job => {
+    worksheet.addRow({
+      jobId: job.jobId,
+      clientName: job.clientName,
+      clientPhone: job.clientPhone,
+      city: job.city,
+      serviceName: job.serviceName,
+      engineerName: job.engineerName,
+      engineerPhone: job.engineerPhone,
+      status: job.status,
+      reason: "" // empty on purpose
+    });
+  });
+
+  // Header styling
+  worksheet.getRow(1).font = { bold: true };
+
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=pending_jobs_report.xlsx"
+  );
+
+  await workbook.xlsx.write(res);
+  res.end();
+};
+
 export const adminLogin = asyncHandler(async(req,res) => {
   
     const {email,password} = req.body
@@ -27,8 +87,8 @@ export const adminLogin = asyncHandler(async(req,res) => {
 
     res.cookie("adminToken",token,{
         httpOnly: true,
-        sameSite:"none",
-       secure: true,
+        sameSite:"lax",
+       secure: false,
         
     })
 
@@ -84,12 +144,10 @@ export const checkAdminSession = (req,res) => {
 
 export const adminLogout = (req,res) => {
     res.clearCookie("adminToken" , {
-                //httpOnly: true,
-                //sameSite:"lax",
-            // secure: false
-         httpOnly: true,
-        sameSite:"none",
-       secure: true,
+                httpOnly: true,
+                sameSite:"lax",
+            secure: false
+         
     })
 
     res.json({success : true})

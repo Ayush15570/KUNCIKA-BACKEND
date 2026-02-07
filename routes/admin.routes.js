@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminLogin,adminLogout,sendJobClosingOTP , verifyOTP,assignJob, checkAdminSession,getJobByJobId ,getAllServiceRequests, verifyServiceRequestOTP, getJobByServiceRequest } from "../controller/admin.controller.js";
+import { adminLogin,exportPendingJobsExcel ,adminLogout,sendJobClosingOTP , verifyOTP,assignJob, checkAdminSession,getJobByJobId ,getAllServiceRequests, verifyServiceRequestOTP, getJobByServiceRequest } from "../controller/admin.controller.js";
 import { verifyAdmin } from "../middlewares/admin.middleware.js";
 
 const router = Router()
@@ -15,4 +15,5 @@ router.route("/getJob/:jobId").get(verifyAdmin,getJobByJobId)
 router.route("/sendClosingOTP/:jobId").post(verifyAdmin,sendJobClosingOTP)
 router.route("/job/by-request/:serviceRequestId").get(verifyAdmin,getJobByServiceRequest)
 router.route("/verify-job-otp").post(verifyAdmin,verifyOTP)
+router.get("/export/pending-jobs",verifyAdmin,exportPendingJobsExcel);
 export default router         
