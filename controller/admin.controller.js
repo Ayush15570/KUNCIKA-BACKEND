@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import  jwt  from "jsonwebtoken";
 import { verifyOTP1 } from "../utils/verifyOTP1.js";
 import { Job } from "../models/job.model.js";
+import { sendOTP } from "../utils/sendOTP.js";
 export const adminLogin = asyncHandler(async(req,res) => {
   
     const {email,password} = req.body
@@ -83,9 +84,9 @@ export const checkAdminSession = (req,res) => {
 
 export const adminLogout = (req,res) => {
     res.clearCookie("adminToken" , {
-        //httpOnly: true,
-        //sameSite:"lax",
-       // secure: false
+                //httpOnly: true,
+                //sameSite:"lax",
+            // secure: false
          httpOnly: true,
         sameSite:"none",
        secure: true,
@@ -135,9 +136,7 @@ export const verifyServiceRequestOTP = asyncHandler(async(req,res) => {
 const generateJobId = () => {
   return  Math.floor(100000 + Math.random() * 900000);
 };
-const generateJobotp = () => {
-  return  Math.floor(100000 + Math.random() * 900000);
-};
+
 export const assignJob = async(req,res) => {
     const{requestId,engineerName,engineerPhone} = req.body
     if (!requestId || !engineerName || !engineerPhone) {
@@ -160,7 +159,7 @@ export const assignJob = async(req,res) => {
     
     const job = await Job.create({
         jobId:generateJobId(),
-        closingOTP:generateJobotp(),
+        
         serviceRequest: request._id,
         clientName:request.name,
         clientPhone: request.phoneNumber,
@@ -181,6 +180,30 @@ export const assignJob = async(req,res) => {
 
 }
 
+export const sendJobClosingOTP = async(req,res) => {
+    const {jobId} = req.params
+
+    const job = await Job.findOne({jobId})
+
+    if(!job){
+        return res.status(404).json({message: "Job not found"})
+    }
+
+    if(job.closingOTPVerified){
+        return res.status(400).json({message: "Job already closed"})
+    }
+
+    const sessionId = await sendOTP(job.clientPhone)
+
+    job.closingOTP = sessionId
+    await job.save();
+
+    return res.status(200).json({
+        success:true,
+        message: "Closing OTP sed to client"
+    })
+}
+
 export const verifyOTP = async(req,res) => {
     const {jobId,otp} = req.body
     if(!otp || !jobId){
@@ -193,12 +216,15 @@ export const verifyOTP = async(req,res) => {
     if(job.closingOTPVerified){
         return res.status(400).json({message:"Job already closed"})
     }
-    if(otp !== job.closingOTP ){
-        return res.status(400).json({message:"Wrong OTP"})
+
+    const isValid = await verifyOTP1(job.closingOTP,otp)
+    if(!isValid){
+        return res.status(400).json({message: "Invalid OTP"})
     }
 
     job.closingOTPVerified = true
     job.status = "closed"
+    job.closingOTP = null
     await job.save()
      
      return res.status(200).json({
