@@ -9,6 +9,7 @@ app.use(cors({
       "http://localhost:5173",
       "http://localhost:5174",
       "https://frontend-user.vercel.app",
+      "frontend-user-navy.vercel.app",
       "https://frontend-user-wxyu.vercel.app",
       "https://frontend-admin-s36m.vercel.app",
       "https://frontend-erp-sage.vercel.app"
