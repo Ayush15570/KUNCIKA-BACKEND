@@ -15,6 +15,7 @@ const services = [
     description: "Home, office and deep cleaning services.",
     availableLocations: ["Bhopal", "Indore", "Delhi"],
     isActive: true,
+    mainCategory:"Home Services",
   },
   {
     name: "Repair",
@@ -22,6 +23,7 @@ const services = [
     description: "AC, fridge, washing machine and home appliance repair.",
     availableLocations: ["Bhopal", "Indore"],
     isActive: true,
+    mainCategory:"Architecture"
   },
   {
     name: "Sales & Manager",
@@ -29,6 +31,7 @@ const services = [
     description: "Sales executives, managers and field work roles.",
     availableLocations: ["Bhopal", "Indore"],
     isActive: true,
+    mainCategory:"Business stratup"
   },
   {
     name: "Legal Consultant",
@@ -110,6 +113,7 @@ const services = [
   {
   name: "Pest Control",
   route: "pest-control",
+  mainCategory: "Home Services",
   description: "Pest control for homes, offices, termites, rodents and insects.",
   availableLocations: ["Bhopal", "Indore", "Delhi"],
   isActive: true,
