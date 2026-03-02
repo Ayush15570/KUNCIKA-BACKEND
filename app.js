@@ -14,6 +14,8 @@ app.use(cors({
       "https://frontend-admin-s36m.vercel.app",
       "https://frontend-erp-sage.vercel.app",
        "https://kunchikaa.com",
+       "https://admin.kunchikaa.com",
+        "https://erp.kunchikaa.com",
   "https://www.kunchikaa.com",
     ];
     if (!origin || allowed.includes(origin)) {
