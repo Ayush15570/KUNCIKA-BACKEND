@@ -72,7 +72,7 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
     //const otp = generateOTP()
     const service = await Services.findById(serviceId);
     const serviceName = service?.name;
-    const sessionId = await sendOTP(phoneNumber);
+   
 
     const request = await ServiceRequest.create({
         name,
@@ -80,7 +80,7 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
         serviceName,
         phoneNumber,
         city,
-        verificationOTP: sessionId,
+        
 
         trackingStatus: "REQUEST_SUBMITTED",
 

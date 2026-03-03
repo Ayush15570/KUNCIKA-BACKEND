@@ -21,9 +21,15 @@ const serviceSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    mainCategory: {
-      type:String,
+    route:{
+      type: String,
+      default:""
+    },
+    image:{
+      type:String
     }
+
+    
   },
   { timestamps: true }
 );

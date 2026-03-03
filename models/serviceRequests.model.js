@@ -24,13 +24,7 @@ const serviceRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    verificationOTP:{
-       
-    },
-    otpVerified: {
-       type:Boolean,
-       default:false,
-    },
+
     status: {
       type: String,
       enum: ["pending", "contacted"],
