@@ -9,7 +9,7 @@ import { Job } from "../models/job.model.js";
 import { sendOTP } from "../utils/sendOTP.js";
 import ExcelJS from "exceljs";
 
-
+//new cursor
 export const exportPendingJobsExcel = async (req, res) => {
     const adminCity = req.admin.city;
     const jobs = await Job.find({

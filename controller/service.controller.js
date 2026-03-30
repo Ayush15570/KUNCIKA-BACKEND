@@ -4,16 +4,28 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-
+let cachedServices = null;
 export const getAllServices = async (req, res) => {
     try {
-        const services = await Services.find({ isActive: true });
+        if (cachedServices) {
+      return res.status(200).json({
+        success: true,
+        count: cachedServices.length,
+        services: cachedServices
+      });
+    }
 
-        res.status(200).json({
-            success: true,
-            count: services.length,
-            services
-        })
+    const services = await Services.find({ isActive: true }).lean();
+
+    cachedServices = services;
+
+    res.status(200).json({
+      success: true,
+      count: services.length,
+      services
+    });
+
+       
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -72,7 +84,7 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
     //const otp = generateOTP()
     const service = await Services.findById(serviceId);
     const serviceName = service?.name;
-   
+   const sessionId = await sendOTP(phoneNumber)
 
     const request = await ServiceRequest.create({
         name,
@@ -80,6 +92,7 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
         serviceName,
         phoneNumber,
         city,
+        verificationOTP: sessionId,
         
 
         trackingStatus: "REQUEST_SUBMITTED",
