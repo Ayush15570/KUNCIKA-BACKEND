@@ -18,6 +18,7 @@ app.use(cors({
        "https://admin.kunchikaa.com",
         "https://erp.kunchikaa.com",
   "https://www.kunchikaa.com",
+  "https://frontend-admin-three-rho.vercel.app"
     ];
     if (!origin || allowed.includes(origin)) {
       callback(null, true);

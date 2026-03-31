@@ -156,7 +156,7 @@ export const adminLogout = (req, res) => {
 
 export const verifyServiceRequestOTP = asyncHandler(async (req, res) => {
     const { requestId, otp } = req.body
-
+    
     if (!requestId || !otp) {
         return res.status(400).json({ message: "Missing data" });
     }
